@@ -3,6 +3,15 @@
 // Desestructura function Router (por defecto de express)
 const { Router } = require('express')
 
+// Desestructura funcion check (por defecto de express validator)
+const { check } = require('express-validator')
+
+// Importamos el middleware de validador campos
+const { validarCampos } = require('../middleware/validarCampos')
+
+// Importamos helpers        
+const { esRolValido, emailExiste, existeUsuarioConId } = require('../helpers/dbValidators')
+
 const { usuariosGet, 
         usuariosPut, 
         usuariosPost, 
@@ -13,11 +22,29 @@ const router = Router()
 
 router.get('/', usuariosGet)
 
-router.put('/:id', usuariosPut)
+// Check actua como un middleware de verificacion hasta llegar al PUT
+router.put('/:id', [
+   check('id', 'No es un ID válido').isMongoId(),
+   check('id').custom(existeUsuarioConId),
+   check('rol').custom(esRolValido),
+   validarCampos        
+], usuariosPut)
 
-router.post('/', usuariosPost)
+// Check actua como un middleware de verificacion hasta llegar al POST
+router.post('/',[
+   check('nombre', 'El nombre es obligatorio').not().isEmpty(),                   
+   check('password', 'El password debe ser de mas de 6 letras').isLength({min: 6}),                   
+   check('correo', 'El correo no es válido').isEmail(),   
+   check('correo').custom(emailExiste),  
+   check('rol').custom(esRolValido),     
+   validarCampos        
+], usuariosPost)
 
-router.delete('/', usuariosDelete)
+router.delete('/:id', [
+   check('id', 'No es un ID válido').isMongoId(),
+   check('id').custom(existeUsuarioConId),
+   validarCampos   
+] ,usuariosDelete)
 
 router.patch('/', usuariosPatch)
 
