@@ -10,6 +10,9 @@ class Server {
         this.port = process.env.PORT
         this.usuariosPath = '/api/usuarios'
 
+        // Autenticacion
+        this.authPath = '/api/auth'
+
         // Conectar a BD
         this.conectarDB()
 
@@ -39,6 +42,7 @@ class Server {
     // Patch principal que requiere la ruta de user
     routes() {
         this.app.use(this.usuariosPath, require('../routes/usuarios'))
+        this.app.use(this.authPath, require('../routes/auth'))
     }
 
     listen() {

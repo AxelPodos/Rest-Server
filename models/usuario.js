@@ -35,7 +35,8 @@ const UsuarioSchema = Schema({
 
 // Funcion para sacar campos que no nos interesa que sean devueltos (en este caso el password y el __v). Chequear en Postman
 UsuarioSchema.methods.toJSON = function() {
-    const {__v, password, ...usuario} = this.toObject()
+    const {__v, password, _id, ...usuario} = this.toObject()
+    usuario.uid = _id
     return usuario
 }
 

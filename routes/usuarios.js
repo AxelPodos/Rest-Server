@@ -6,17 +6,13 @@ const { Router } = require('express')
 // Desestructura funcion check (por defecto de express validator)
 const { check } = require('express-validator')
 
-// Importamos el middleware de validador campos
-const { validarCampos } = require('../middleware/validarCampos')
+// Optimizacion de importaciones en NODE
+const { validarCampos, validarJWT, esAdministrador, tieneRol } = require('../middleware/index')
 
 // Importamos helpers        
 const { esRolValido, emailExiste, existeUsuarioConId } = require('../helpers/dbValidators')
 
-const { usuariosGet, 
-        usuariosPut, 
-        usuariosPost, 
-        usuariosDelete, 
-        usuariosPatch } = require('../controllers/usuarios')
+const { usuariosGet, usuariosPut, usuariosPost, usuariosDelete, usuariosPatch } = require('../controllers/usuarios')
 
 const router = Router()
 
@@ -40,7 +36,11 @@ router.post('/',[
    validarCampos        
 ], usuariosPost)
 
+// Check actua como un middleware de verificacion hasta llegar al DELETE
 router.delete('/:id', [
+   validarJWT,
+   // esAdministrador,
+   tieneRol('ADMIN_ROLE','VENTAS_ROLE'),
    check('id', 'No es un ID válido').isMongoId(),
    check('id').custom(existeUsuarioConId),
    validarCampos   
